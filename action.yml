@@ -8,19 +8,24 @@ inputs:
   cluster-token:
     description: 'Kubernetes API authentication token'
     required: true
-  ca-file:
-    description: 'Path to the file containing the root CA cert for the kubernetes cluster'
-    required: true
-  namespace:
-    description: 'Kubernetes namespace where the job will run'
-    required: true
-  job-name: 
-    description: 'Name of the job (note: used as a prefix only for an auto-generated job name)'
-    required: false
-    default: ${{github.repository}}
   image:
     description: 'Name of the docker image in a remote repository (i.e. "debian")'
     required: true
+  ca-file:
+    description: 'Path to the file containing the root CA cert for the kubernetes API server'
+    required: false
+  job-name: 
+    description: 'Name of the job (note: used only as a prefix for an auto-generated job name)'
+    required: false
+    default: ${{github.repository}}-job  
+  namespace:
+    description: 'Kubernetes namespace where the job will run'
+    required: false
+    default: 'default'
+  disable-tls:
+    description: 'Connect to Kubernetes API server without TLS (not recommended)'
+    required: false
+    default: "false"
 
 runs:
   using: docker

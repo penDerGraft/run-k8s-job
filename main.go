@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/sethvargo/go-githubactions"
@@ -19,16 +21,41 @@ func main() {
 	image := action.GetInput("image")
 	jobName := action.GetInput("job-name")
 	caFilePath := action.GetInput("ca-file")
+	tlsFlag := action.GetInput("disable-tls")
 
-	action = action.WithFieldsMap(map[string]string{
-		"job": jobName,
-	})
+	if len(clusterURL) == 0 {
+		action.Fatalf("'cluster-url' is a required input but was empty")
+	}
+
+	if len(token) == 0 {
+		action.Fatalf("'cluster-token' is a required input but was empty")
+	}
+
+	if len(image) == 0 {
+		action.Fatalf("'image' is a required input but was empty")
+	}
+
+	disableTLS, err := strconv.ParseBool(tlsFlag)
+	if err != nil {
+		action.Fatalf("'disable-tls input must be either 'true' or 'false', was %s", tlsFlag)
+	}
+
+	if !disableTLS {
+		if len(caFilePath) == 0 {
+			action.Fatalf("you must either specify the file path to the root ca or explicitly disable tls using the 'disable-tls' input")
+		}
+
+		if _, err := os.Stat(caFilePath); os.IsNotExist(err) {
+			action.Fatalf("could not locate file %s; please make sure the file is available in the runner's context", caFilePath)
+		}
+	}
 
 	config, err := clientcmd.BuildConfigFromFlags(clusterURL, "")
 	if err != nil {
 		action.Fatalf("%v", err)
 	}
 
+	config.Insecure = disableTLS
 	config.CAFile = caFilePath
 	config.BearerToken = token
 
@@ -36,6 +63,10 @@ func main() {
 	if err != nil {
 		action.Fatalf("%v", err)
 	}
+
+	action = action.WithFieldsMap(map[string]string{
+		"job": jobName,
+	})
 
 	runner := NewJobRunner(clientset.BatchV1().Jobs(namespace), clientset.CoreV1().Pods(namespace), 5*time.Second, action)
 
