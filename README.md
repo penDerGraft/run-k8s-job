@@ -11,7 +11,9 @@ It's also not always entirely straightforward to get the output of a previously 
 Some example uses might be:
 - smoke/integration tests against a live environment
 - load tests
+- dependency provisioning
 - database migrations
+
 
 
 ## Required Inputs
