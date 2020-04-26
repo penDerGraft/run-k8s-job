@@ -4,7 +4,7 @@ Run an arbitrary docker image as a job on a Kubernetes cluster and report the ou
 
 ## Why?
 
-For services/apps running on Kubernetes the `run-k8s-job` action allows you to define an arbitrary task as an explict step in a GitHub workflow, without having to deal with a lot of Kubernetes-specific details (you just need a Docker image). This can be useful for creating automated stage gates in a deployment pipeline, or kicking off any task that may be repeated based on the GitHub [events that trigger workflows](https://help.github.com/en/actions/reference/events-that-trigger-workflows). 
+For services/apps running on Kubernetes, the `run-k8s-job` action allows you to define an arbitrary task as an explict step in a GitHub workflow, without having to deal with a lot of Kubernetes-specific details (you just need a Docker image). This can be useful for creating automated stage gates in a deployment pipeline, or kicking off any task that may be repeated based on the GitHub [events that trigger workflows](https://help.github.com/en/actions/reference/events-that-trigger-workflows). 
 
 It's also not always entirely straightforward to get the output of a previously executed Kubernetes job. This action will grab job status and any logs and output them to the actions console. 
 
@@ -17,7 +17,7 @@ Some example uses might be:
 ## Usage
 
 ```yaml
-    - uses: ./
+    - uses: penDerGraft/run-k8s-job
       with:
         kubeconfig-file: '${{ secrets.KUBECONFIG_FILE }}'        
         image: 'penDerGraft/integration-test-job'        
@@ -25,13 +25,13 @@ Some example uses might be:
 
 ### Auth Strategies
 
-To create a new job in a cluster, `run-k8s-job` needs credentials to authenticate against the canonical cluster endpoint. This is the IP address of the Kubernetes server that handles API access for the cluster. There are two ways to do this.
+To create a new job in a cluster, `run-k8s-job` needs credentials to authenticate against the canonical cluster endpoint. This is the IP address of the Kubernetes server that handles API access for the cluster. There are two ways to provide credentials:
 
 #### Using `kubeconfig-file` 
 This is a base64 encoded version of the config file that is stored at `$HOME/.kube/config`. If you can access your cluster with `kubectl` this file should already have the necessary data for authentication. 
 
 #### Using `cluster-url`,  `cluster-token` and `ca-file` 
-These values are included in your kubeconfig file, but there may be cases when it's more straightforward to specifiy them directly. Note that you can omit the `ca-file` if you set `allow-insecure` to true, but this should only be used in testing situations. 
+These values are included in your kubeconfig file, but there may be cases when it's more straightforward to specifiy them directly. Note that you can omit the `ca-file` if you set `allow-insecure` to true, but this should only be used in testing situations, or when you know your connection to the cluster is secured in other ways.
 
 ### Inputs
 
